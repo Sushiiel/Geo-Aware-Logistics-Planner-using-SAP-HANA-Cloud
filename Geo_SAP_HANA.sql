@@ -35,10 +35,8 @@ CREATE OR REPLACE PROCEDURE CalculateRoutes()
 LANGUAGE SQLSCRIPT
 AS
 BEGIN
-    -- Clear previous results
     DELETE FROM Routes;
 
-    -- Insert new route calculations
     INSERT INTO Routes (WarehouseID, ZoneID, DistanceKM, FuelCost, RouteScore)
     SELECT
         W.WarehouseID,
@@ -53,13 +51,11 @@ BEGIN
     JOIN VehicleAvailability V ON W.WarehouseID = V.WarehouseID
     CROSS JOIN DemandZones Z
 
-    -- Inline derived table to calculate distance and fuel cost
     JOIN (
         SELECT 
             W1.WarehouseID AS WID,
             Z1.ZoneID AS ZID,
 
-            -- Calculate distance
             6371 * ACOS(
                 LEAST(1, GREATEST(-1,
                     COS(W1.Latitude * 3.14159265358979 / 180) *
@@ -70,7 +66,6 @@ BEGIN
                 ))
             ) AS DistanceKM,
 
-            -- Fuel cost
             6371 * ACOS(
                 LEAST(1, GREATEST(-1,
                     COS(W1.Latitude * 3.14159265358979 / 180) *
